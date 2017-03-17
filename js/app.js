@@ -6,7 +6,12 @@ var Enemy = function() {
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
     this.sprite = 'images/enemy-bug.png';
+    this.x = 0;
+    this.y = 225;
 };
+
+////values for  bugs.y
+///60,145,
 
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
@@ -14,11 +19,19 @@ Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
+    this.x += 1 * dt;
 };
+
+//Enemy.prototype.move = function(num) {
+//
+//};
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+
+    for (var i = 1; i < 4; i++) {
+         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
 };
 
 
@@ -26,34 +39,57 @@ Enemy.prototype.render = function() {
 // This class requires an update(), render() and
 // a handleInput() method.
 var Player = function() {
-        this.sprite = 'images/char-boy.png';
-    this.x = 300;
-    this.y = 300;
+    this.sprite = 'images/char-boy.png';
+    this.x = 200;
+    this.y = 410;
 };
 
 Player.prototype.update = function() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    //.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+
 };
 
 Player.prototype.handleInput = function(event){
-    console.log(event);
-    if (event === "left"){
-      this.x -= 100;
-    }
-    else if (event === "right"){
-        this.x += 100;
+
+   switch (event) {
+
+        case "left":
+            if (this.x >= 100){
+            this.x -= 100;
+           }
+           break;
+        case "right":
+             if (this.x <= 300){
+            this.x += 100;
+           }
+            break;
+        case "up":
+            if (this.y >= 140){
+            this.y -= 84;
+           }
+            break;
+        case "down":
+           if (this.y <= 409){
+            this.y += 84;
+           }
+            break;
+        default:
+            break;
     }
 };
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
-var allEnemies = [new Enemy(), new Enemy(), new Enemy(), new Enemy()];
+var allEnemies = [];
+
+
 // Place the player object in a variable called player
 var player = new Player();
+
 
 
 // This listens for key presses and sends the keys to your
@@ -68,3 +104,9 @@ document.addEventListener('keyup', function(e) {
 
     player.handleInput(allowedKeys[e.keyCode]);
 });
+for (var i = 1; i < 4; i++) {
+    allEnemies.push( new Enemy());
+    console.log("hi");
+    console.log(allEnemies);
+};
+
