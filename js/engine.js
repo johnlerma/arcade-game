@@ -47,6 +47,29 @@ var Engine = (function(global) {
          */
         update(dt);
         render();
+        
+        //// checks for remaining lives and shows game over if user loses
+        if (livesleft === 0) {
+            ctx.font = "36pt Impact";
+            ctx.textAlign = "center";
+            ctx.fillStyle = "rgba(255, 255, 255, 1)";
+            ctx.fillText(("GAME OVER"), 250, 375);
+    
+            ctx.strokeStyle = "rgba(0, 0, 0, 1)";
+            ctx.lineWidth = 1;
+            ctx.strokeText(("GAME OVER"), 250, 375);
+            
+            ctx.font = "18pt Impact";
+            ctx.textAlign = "center";
+            ctx.fillStyle = "rgba(255, 255, 255, 1)";
+            ctx.fillText(("click anywhere to start over"), 250, 400);
+    
+            ctx.strokeStyle = "rgba(0, 0, 0, 1)";
+            ctx.lineWidth = 1;
+            ctx.strokeText(("click anywhere to start over"), 250, 400);
+            
+            document.addEventListener('click', screenclick);
+        }
 
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
@@ -96,6 +119,7 @@ var Engine = (function(global) {
         });
         player.update();
         gem.update();
+        lives.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -154,14 +178,22 @@ var Engine = (function(global) {
 
         player.render();
         gem.render();
+        lives.render();
     }
+    
+    
+    function screenclick() {
+        init();
+        document.removeEventListener('click', screenclick);
+        console.log("screenclicked");
+	}
 
     /* This function does nothing but it could have been a good place to
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        // noop
+        
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -174,7 +206,8 @@ var Engine = (function(global) {
         'images/grass-block.png',
         'images/enemy-bug.png',
         'images/char-boy.png',
-        'images/gem-orange-small.png'
+        'images/gem-orange-small.png',
+        'images/Heart-small.png'
     ]);
     Resources.onReady(init);
 

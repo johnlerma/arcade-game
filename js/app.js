@@ -6,6 +6,7 @@ function getRandomSpeed() {
 
 
 
+
 // Enemies our player must avoid
 var Enemy = function(x, y) {
     // Variables applied to each of our instances go here,
@@ -37,6 +38,7 @@ Enemy.prototype.update = function(dt) {
     this.x += this.speed * dt;
     this.reset();
     this.checkCollision(player);
+    
     //console.log("player stuff" + player.x);
 };
 
@@ -49,6 +51,10 @@ Enemy.prototype.checkCollision = function(inputPlayer) {
         inputPlayer.y + 70 > this.y) {
         inputPlayer.reset();
         console.log("collision");
+        gem.reset();
+        if (livesleft > 0){
+        livesleft = livesleft - 1;
+        }
     }
   
 };
@@ -183,6 +189,10 @@ Gem.prototype.update = function() {
    // console.log("xxx");
 };
 
+Gem.prototype.reset = function() {
+    this.x = 315;
+}
+
 Gem.prototype.checkCollision = function(inputPlayer) {
     //console.log("gem start");
     if (inputPlayer.x < this.x + 75 &&
@@ -193,8 +203,42 @@ Gem.prototype.checkCollision = function(inputPlayer) {
         
         this.x = -100;
         console.log("gem collision");
+        
     }
   
 };
 
 var gem = new Gem();
+
+var livesleft = 3;
+var Lives = function() {
+    this.sprite = 'images/Heart-small.png';
+    this.x = 10;
+    this.y = 550;
+    this.width = 10;
+    this.height = 10;
+};
+
+Lives.prototype.render = function () {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    ctx.font = "20pt Impact";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "white";
+    ctx.fillText((" = " + livesleft), 60, 575);
+    
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 1;
+    ctx.strokeText((" = " + livesleft), 60, 575);
+}
+
+Lives.prototype.update = function () {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+var lives = new Lives();
+
+
+
+
+
+
