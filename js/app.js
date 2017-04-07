@@ -1,11 +1,13 @@
 function getRandomSpeed() {
-  var min = Math.ceil(200);
-  var max = Math.floor(400);
-  this.speed =  Math.floor(Math.random() * (max - min)) + min;
+    var min = Math.ceil(200);
+    var max = Math.floor(400);
+    this.speed = Math.floor(Math.random() * (max - min)) + min;
 }
 
 
-
+var levelup = new Audio('sounds/levelup.wav');
+var difficulty = 1;
+var gameover = false;
 
 // Enemies our player must avoid
 var Enemy = function(x, y) {
@@ -22,52 +24,55 @@ var Enemy = function(x, y) {
     var max = Math.floor(400);
     this.speed = Math.floor(Math.random() * (max - min)) + min;
     //console.log("speed: " + this.speed);
-        
+
 };
 
 ////values for  bugs.y
 ///60,145,
-
+var death = new Audio('sounds/death.wav');
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
 Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
     // all computers.
-    
-    this.x += this.speed * dt;
+
+    this.x += this.speed * difficulty * dt;
     this.reset();
     this.checkCollision(player);
-    
+
     //console.log("player stuff" + player.x);
 };
 
 Enemy.prototype.checkCollision = function(inputPlayer) {
-   
+
     //console.log("check inputplayer: " + inputPlayer.x);
     if (inputPlayer.x < this.x + 75 &&
         inputPlayer.x + 65 > this.x &&
         inputPlayer.y < this.y + 50 &&
         inputPlayer.y + 70 > this.y) {
         inputPlayer.reset();
+        death.play();
         console.log("collision");
         gem.reset();
-        if (livesleft > 0){
-        livesleft = livesleft - 1;
+        gemtaken = false;
+        if (livesleft > 0) {
+            livesleft = livesleft - 1;
         }
     }
-  
+
 };
 
-Enemy.prototype.reset = function(){
-if(this.x >= 490){
-    this.x = -90;
-    //console.log(this.speed);
-    //this.speed = Math.random()*1000;
-var min = Math.ceil(200);
-  var max = Math.floor(400);
-  this.speed =  Math.floor(Math.random() * (max - min)) + min;
-    //console.log("speed " + this.speed);
+///moves the enemy back to the left after it falls off the edge of the canvas
+Enemy.prototype.reset = function() {
+    if (this.x >= 490) {
+        this.x = -90;
+        //console.log(this.speed);
+        //this.speed = Math.random()*1000;
+        var min = Math.ceil(200);
+        var max = Math.floor(400);
+        this.speed = Math.floor(Math.random() * (max - min)) + min;
+        //console.log("speed " + this.speed);
 
     }
 };
@@ -76,8 +81,8 @@ var min = Math.ceil(200);
 Enemy.prototype.render = function() {
 
     for (var i = 1; i < 4; i++) {
-         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
+        ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    }
 };
 
 
@@ -93,6 +98,7 @@ var Player = function() {
 Player.prototype.update = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     //console.log("player y: " + this.y);
+    this.checkGem();
 };
 
 
@@ -106,32 +112,57 @@ Player.prototype.reset = function() {
     this.x = 200;
 };
 
-Player.prototype.handleInput = function(event){
+Player.prototype.checkGem = function() {
+    //    if (gemtaken = true && this.y > 325) {
+    //        console.log("gem is home");
+    //    }
+    if (gemtaken === true && this.y >= 410 && this.x == 200) {
+        console.log("gemtaken " + gemtaken);
+        gemtaken = false;
+        levelup.play();
+        gemScored = gemScored + 1;
+        difficulty = difficulty + .1;
+        console.log("difficulty: " + difficulty);
+        gem.reset();
+        leveluptext.reset();
+        levelupnow = true;
+    }
+};
 
-   switch (event) {
+Player.prototype.handleInput = function(event) {
+    if (levelupnow === true) {
+        ctx.clearRect(250, 300, 100, 10);
+        levelupnow = false;
+        console.log("somthing");
 
-        case "left":
-            if (this.x >= 100){
-            this.x -= 100;
-           }
-           break;
-        case "right":
-             if (this.x <= 300){
-            this.x += 100;
-           }
-            break;
-        case "up":
-            if (this.y >= 45){
-            this.y -= 85;
-           }
-            break;
-        case "down":
-           if (this.y <= 409){
-            this.y += 85;
-           }
-            break;
-        default:
-            break;
+    }
+
+    if (gameover === false) {
+        switch (event) {
+
+            case "left":
+                if (this.x >= 100) {
+                    this.x -= 100;
+                }
+                break;
+            case "right":
+                if (this.x <= 300) {
+                    this.x += 100;
+                }
+                break;
+            case "up":
+                if (this.y >= 45) {
+                    this.y -= 85;
+                }
+                break;
+            case "down":
+                if (this.y <= 409) {
+                    this.y += 85;
+                }
+                break;
+            default:
+                break;
+        }
     }
 };
 // Now instantiate your objects.
@@ -170,6 +201,9 @@ allEnemies.push(buggy2);
 allEnemies.push(buggy3);
 //console.log(buggy1);
 
+///sounds for gem
+var pickup = new Audio('sounds/pickup.wav');
+var gemtaken = false;
 
 var Gem = function() {
     this.sprite = 'images/gem-orange-small.png';
@@ -186,7 +220,7 @@ Gem.prototype.render = function() {
 Gem.prototype.update = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     this.checkCollision(player);
-   // console.log("xxx");
+    // console.log("xxx");
 };
 
 Gem.prototype.reset = function() {
@@ -200,12 +234,13 @@ Gem.prototype.checkCollision = function(inputPlayer) {
         inputPlayer.y < this.y + 50 &&
         inputPlayer.y + 70 > this.y) {
         //inputPlayer.reset();
-        
+        gemtaken = true;
+        pickup.play();
         this.x = -100;
         console.log("gem collision");
-        
+
     }
-  
+
 };
 
 var gem = new Gem();
@@ -219,19 +254,19 @@ var Lives = function() {
     this.height = 10;
 };
 
-Lives.prototype.render = function () {
+Lives.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     ctx.font = "20pt Impact";
     ctx.textAlign = "center";
     ctx.fillStyle = "white";
     ctx.fillText((" = " + livesleft), 60, 575);
-    
+
     ctx.strokeStyle = "black";
     ctx.lineWidth = 1;
     ctx.strokeText((" = " + livesleft), 60, 575);
 }
 
-Lives.prototype.update = function () {
+Lives.prototype.update = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 }
 
@@ -240,5 +275,78 @@ var lives = new Lives();
 
 
 
+var gemScored = 0;
+var GemScore = function() {
+    this.sprite = 'images/Heart-small.png';
+    this.x = 110;
+    this.y = 550;
+    this.width = 10;
+    this.height = 10;
+};
+
+GemScore.prototype.render = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    ctx.font = "20pt Impact";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "white";
+    ctx.fillText((" = " + gemScored), 160, 575);
+
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 1;
+    ctx.strokeText((" = " + gemScored), 160, 575);
+}
+
+GemScore.prototype.update = function() {
+    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+}
+
+var gemscore = new GemScore();
 
 
+var levelupnow = false;
+
+var Leveluptext = function() {
+    //this.sprite = 'images/Heart-small.png';
+    this.x = 110;
+    this.y = 550;
+    this.width = 10;
+    this.height = 10;
+};
+
+Leveluptext.prototype.render = function() {
+    // ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+    if (levelupnow === true) {
+        ctx.font = "40pt Impact";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "yellow";
+        ctx.fillText(("Level Up!"), 250, 300);
+
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.strokeText(("Level Up!"), 250, 300);
+    };
+    if (levelupnow === false) {
+        ctx.font = "40pt Impact";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "yellow";
+        ctx.fillText(("Level Up!"), -150, 300);
+
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 1;
+        ctx.strokeText(("Level Up!"), -150, 300);
+    };
+
+}
+
+Leveluptext.prototype.update = function() {
+    //ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+
+}
+
+Leveluptext.prototype.reset = function() {
+
+    console.log("why doesnt it work");
+
+}
+
+var leveluptext = new Leveluptext();

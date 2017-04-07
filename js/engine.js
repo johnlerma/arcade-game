@@ -23,11 +23,13 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
+        //canvas2 = doc.createElement('canvas')
         lastTime;
 
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
+    
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -67,6 +69,14 @@ var Engine = (function(global) {
             ctx.strokeStyle = "rgba(0, 0, 0, 1)";
             ctx.lineWidth = 1;
             ctx.strokeText(("click anywhere to start over"), 250, 400);
+            
+            gameover = true;
+            
+            for(var i = 0; i <= 2; i++) {
+                allEnemies[i].speed = 0;    
+            }
+            
+           
             
             document.addEventListener('click', screenclick);
         }
@@ -120,6 +130,8 @@ var Engine = (function(global) {
         player.update();
         gem.update();
         lives.update();
+        gemscore.update();
+        leveluptext.update();
     }
 
     /* This function initially draws the "game level", it will then call
@@ -179,11 +191,32 @@ var Engine = (function(global) {
         player.render();
         gem.render();
         lives.render();
+        gemscore.render();
+        leveluptext.render();
     }
     
     
     function screenclick() {
-        init();
+        
+        
+        gameover = false;
+        difficulty = 1;
+        livesleft = 3;
+        gemtaken = false;
+        gemScored = 0;
+        
+//        for(var i = 0; i <= 2; i++) {
+//                allEnemies[i].x = 0;    
+//            }
+        ////make new enemies
+        allEnemies = [];
+        
+        buggy1 = new Enemy(-130, 225);
+        buggy2 = new Enemy(-130, 142);
+        buggy3 = new Enemy(-130, 60);
+        allEnemies.push(buggy1);
+        allEnemies.push(buggy2);
+        allEnemies.push(buggy3);
         document.removeEventListener('click', screenclick);
         console.log("screenclicked");
 	}
