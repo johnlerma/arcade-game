@@ -124,7 +124,7 @@ Player.prototype.checkGem = function() {
         gemtaken = false;
         levelup.play();
         gemScored = gemScored + 1;
-        difficulty = difficulty + .1;
+        difficulty = difficulty + 0.1;
         gem.reset();
         leveluptext.reset();
         levelupnow = true;
@@ -224,7 +224,7 @@ Gem.prototype.update = function() {
 Gem.prototype.reset = function() {
     this.x = gemxArray[Math.floor(Math.random() * gemxArray.length)];
     this.y = gemyArray[Math.floor(Math.random() * gemyArray.length)];
-}
+};
 
 // checks to see if player has collided with gem
 // moves gem off screen to appear as if player picked it up
@@ -261,11 +261,11 @@ Lives.prototype.render = function() {
     ctx.strokeStyle = "black";
     ctx.lineWidth = 1;
     ctx.strokeText((" = " + livesleft), 60, 575);
-}
+};
 
 Lives.prototype.update = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
+};
 
 var lives = new Lives();
 
@@ -289,11 +289,11 @@ GemScore.prototype.render = function() {
     ctx.strokeStyle = "black";
     ctx.lineWidth = 1;
     ctx.strokeText((" = " + gemScored), 160, 575);
-}
+};
 
 GemScore.prototype.update = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-}
+};
 
 var gemscore = new GemScore();
 
@@ -319,7 +319,7 @@ Leveluptext.prototype.render = function() {
         ctx.strokeStyle = "black";
         ctx.lineWidth = 1;
         ctx.strokeText(("Level Up!"), 250, 300);
-    };
+    }
     if (levelupnow === false) {
         ctx.font = "40pt Impact";
         ctx.textAlign = "center";
@@ -329,14 +329,14 @@ Leveluptext.prototype.render = function() {
         ctx.strokeStyle = "black";
         ctx.lineWidth = 1;
         ctx.strokeText(("Level Up!"), -150, 300);
-    };
+    }
 
-}
+};
 
 Leveluptext.prototype.update = function() {
-}
+};
 
 Leveluptext.prototype.reset = function() {
-}
+};
 
 var leveluptext = new Leveluptext();
