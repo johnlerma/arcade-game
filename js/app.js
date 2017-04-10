@@ -1,13 +1,15 @@
-function getRandomSpeed() {
-    var min = Math.ceil(200);
-    var max = Math.floor(400);
-    this.speed = Math.floor(Math.random() * (max - min)) + min;
-}
-
-
+//// sounds for game
 var levelup = new Audio('sounds/levelup.wav');
+var endgame = new Audio('sounds/endgame.wav');
+var death = new Audio('sounds/death.wav');
+var pickup = new Audio('sounds/pickup.wav');
+
+//// set the variable for game state, gem state, difficulty etc
 var difficulty = 1;
 var gameover = false;
+var livesleft = 3;
+var gemtaken = false;
+var gemScored = 0;
 
 // Enemies our player must avoid
 var Enemy = function(x, y) {
@@ -19,19 +21,14 @@ var Enemy = function(x, y) {
     this.sprite = 'images/enemy-bug.png';
     this.x = x;
     this.y = y;
-    //this.y = 225;
     var min = Math.ceil(200);
     var max = Math.floor(400);
     this.speed = Math.floor(Math.random() * (max - min)) + min;
-    //console.log("speed: " + this.speed);
-
 };
 
-////values for  bugs.y
-///60,145,
-var death = new Audio('sounds/death.wav');
 // Update the enemy's position, required method for game
 // Parameter: dt, a time delta between ticks
+// Also checks for collision with player
 Enemy.prototype.update = function(dt) {
     // You should multiply any movement by the dt parameter
     // which will ensure the game runs at the same speed for
@@ -40,25 +37,30 @@ Enemy.prototype.update = function(dt) {
     this.x += this.speed * difficulty * dt;
     this.reset();
     this.checkCollision(player);
-
-    //console.log("player stuff" + player.x);
 };
 
+// checks for collision as well as checks to see if any 
+//lives remain and plays proper sound for player dead/game over
 Enemy.prototype.checkCollision = function(inputPlayer) {
 
-    //console.log("check inputplayer: " + inputPlayer.x);
     if (inputPlayer.x < this.x + 75 &&
         inputPlayer.x + 65 > this.x &&
         inputPlayer.y < this.y + 50 &&
         inputPlayer.y + 70 > this.y) {
-        inputPlayer.reset();
-        death.play();
-        console.log("collision");
-        gem.reset();
         gemtaken = false;
-        if (livesleft > 0) {
+
+        ////updates lives counter and resets gem unless end of game
+        if (livesleft > 1) {
             livesleft = livesleft - 1;
+            death.play();
+            console.log("minus 1");
+            gem.reset();
+        } else {
+            endgame.play();
+            livesleft = livesleft - 1;
+            console.log("end");
         }
+        inputPlayer.reset();
     }
 
 };
@@ -67,19 +69,14 @@ Enemy.prototype.checkCollision = function(inputPlayer) {
 Enemy.prototype.reset = function() {
     if (this.x >= 490) {
         this.x = -90;
-        //console.log(this.speed);
-        //this.speed = Math.random()*1000;
         var min = Math.ceil(200);
         var max = Math.floor(400);
         this.speed = Math.floor(Math.random() * (max - min)) + min;
-        //console.log("speed " + this.speed);
-
     }
 };
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
-
     for (var i = 1; i < 4; i++) {
         ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     }
@@ -89,15 +86,16 @@ Enemy.prototype.render = function() {
 // Now write your own player class
 // This class requires an update(), render() and
 // a handleInput() method.
+// sets x and y of player
 var Player = function() {
     this.sprite = 'images/char-boy.png';
     this.x = 200;
     this.y = 410;
 };
 
+// draws sprite and checks to see if gem was taken and reaches goal
 Player.prototype.update = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-    //console.log("player y: " + this.y);
     this.checkGem();
 };
 
@@ -107,34 +105,38 @@ Player.prototype.render = function() {
 
 };
 
+//resets player to starting point unless game over
+//game over state moves player off the screen
 Player.prototype.reset = function() {
-    this.y = 410;
-    this.x = 200;
+    if (livesleft >= 1) {
+        this.y = 410;
+        this.x = 200;
+    } else {
+        this.x = -100;
+        this.y = 410;
+    }
 };
 
+//checks to see if player has reached the goal
+//if yes, difficulty is increased, levelup text appears on screen
 Player.prototype.checkGem = function() {
-    //    if (gemtaken = true && this.y > 325) {
-    //        console.log("gem is home");
-    //    }
     if (gemtaken === true && this.y >= 410 && this.x == 200) {
-        console.log("gemtaken " + gemtaken);
         gemtaken = false;
         levelup.play();
         gemScored = gemScored + 1;
         difficulty = difficulty + .1;
-        console.log("difficulty: " + difficulty);
         gem.reset();
         leveluptext.reset();
         levelupnow = true;
     }
 };
 
+// sets keyboard input to move player around screen.
+// also clears up leve up text
 Player.prototype.handleInput = function(event) {
     if (levelupnow === true) {
         ctx.clearRect(250, 300, 100, 10);
         levelupnow = false;
-        console.log("somthing");
-
     }
 
     if (gameover === false) {
@@ -184,31 +186,26 @@ document.addEventListener('keyup', function(e) {
         39: 'right',
         40: 'down'
     };
-
     player.handleInput(allowedKeys[e.keyCode]);
 });
-//for (var i = 1; i < 4; i++) {
-//    allEnemies.push( new Enemy());
-//    console.log("hi");
-//    console.log(allEnemies);
-//};
 
+// creates the 3 bugs and positions them
 var buggy1 = new Enemy(-130, 225);
 var buggy2 = new Enemy(-130, 142);
 var buggy3 = new Enemy(-130, 60);
 allEnemies.push(buggy1);
 allEnemies.push(buggy2);
 allEnemies.push(buggy3);
-//console.log(buggy1);
 
-///sounds for gem
-var pickup = new Audio('sounds/pickup.wav');
-var gemtaken = false;
+// sets the possible x and y values where the gem will appear on screen
+var gemxArray = [14, 115, 216, 316, 420];
+var gemyArray = [48, 129, 214, 298];
 
+// creates a random position for the gem to appear on screen
 var Gem = function() {
     this.sprite = 'images/gem-orange-small.png';
-    this.x = 315;
-    this.y = 48;
+    this.x = gemxArray[Math.floor(Math.random() * gemxArray.length)];
+    this.y = gemyArray[Math.floor(Math.random() * gemyArray.length)];
     this.width = 10;
     this.height = 10;
 };
@@ -217,35 +214,34 @@ Gem.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
 };
 
+// update function checks for collision with player
 Gem.prototype.update = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     this.checkCollision(player);
-    // console.log("xxx");
 };
 
+// resets the gem after player has died or moves to the gem goal
 Gem.prototype.reset = function() {
-    this.x = 315;
+    this.x = gemxArray[Math.floor(Math.random() * gemxArray.length)];
+    this.y = gemyArray[Math.floor(Math.random() * gemyArray.length)];
 }
 
+// checks to see if player has collided with gem
+// moves gem off screen to appear as if player picked it up
 Gem.prototype.checkCollision = function(inputPlayer) {
-    //console.log("gem start");
     if (inputPlayer.x < this.x + 75 &&
         inputPlayer.x + 65 > this.x &&
-        inputPlayer.y < this.y + 50 &&
+        inputPlayer.y < this.y + 20 &&
         inputPlayer.y + 70 > this.y) {
-        //inputPlayer.reset();
         gemtaken = true;
         pickup.play();
         this.x = -100;
-        console.log("gem collision");
-
     }
-
 };
 
 var gem = new Gem();
 
-var livesleft = 3;
+// creates Lives object for icon placement and score keeping
 var Lives = function() {
     this.sprite = 'images/Heart-small.png';
     this.x = 10;
@@ -254,6 +250,7 @@ var Lives = function() {
     this.height = 10;
 };
 
+// creates the text on screen for score keeping
 Lives.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     ctx.font = "20pt Impact";
@@ -272,18 +269,16 @@ Lives.prototype.update = function() {
 
 var lives = new Lives();
 
-
-
-
-var gemScored = 0;
+// creates Gem object for icon placement and score keeping
 var GemScore = function() {
-    this.sprite = 'images/Heart-small.png';
+    this.sprite = 'images/gem-icon.png';
     this.x = 110;
     this.y = 550;
     this.width = 10;
     this.height = 10;
 };
 
+// creates text on screen for score keeping
 GemScore.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     ctx.font = "20pt Impact";
@@ -302,19 +297,19 @@ GemScore.prototype.update = function() {
 
 var gemscore = new GemScore();
 
-
 var levelupnow = false;
 
+
+// creates text object on screen to show user they have leveled up
 var Leveluptext = function() {
-    //this.sprite = 'images/Heart-small.png';
     this.x = 110;
     this.y = 550;
     this.width = 10;
     this.height = 10;
 };
 
+// creates text on screen
 Leveluptext.prototype.render = function() {
-    // ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
     if (levelupnow === true) {
         ctx.font = "40pt Impact";
         ctx.textAlign = "center";
@@ -339,14 +334,9 @@ Leveluptext.prototype.render = function() {
 }
 
 Leveluptext.prototype.update = function() {
-    //ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-
 }
 
 Leveluptext.prototype.reset = function() {
-
-    console.log("why doesnt it work");
-
 }
 
 var leveluptext = new Leveluptext();

@@ -13,7 +13,6 @@
  * the canvas' context (ctx) object globally available to make writing app.js
  * a little simpler to work with.
  */
-
 var Engine = (function(global) {
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
@@ -23,13 +22,12 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        //canvas2 = doc.createElement('canvas')
         lastTime;
 
     canvas.width = 505;
     canvas.height = 606;
     doc.body.appendChild(canvas);
-    
+
 
     /* This function serves as the kickoff point for the game loop itself
      * and handles properly calling the update and render methods.
@@ -49,35 +47,33 @@ var Engine = (function(global) {
          */
         update(dt);
         render();
-        
+
         //// checks for remaining lives and shows game over if user loses
         if (livesleft === 0) {
+
             ctx.font = "36pt Impact";
             ctx.textAlign = "center";
             ctx.fillStyle = "rgba(255, 255, 255, 1)";
-            ctx.fillText(("GAME OVER"), 250, 375);
-    
+            ctx.fillText(("GAME OVER"), 250, 300);
+
             ctx.strokeStyle = "rgba(0, 0, 0, 1)";
             ctx.lineWidth = 1;
-            ctx.strokeText(("GAME OVER"), 250, 375);
-            
+            ctx.strokeText(("GAME OVER"), 250, 300);
+
             ctx.font = "18pt Impact";
             ctx.textAlign = "center";
             ctx.fillStyle = "rgba(255, 255, 255, 1)";
-            ctx.fillText(("click anywhere to start over"), 250, 400);
-    
+            ctx.fillText(("click anywhere to start over"), 250, 325);
+
             ctx.strokeStyle = "rgba(0, 0, 0, 1)";
             ctx.lineWidth = 1;
-            ctx.strokeText(("click anywhere to start over"), 250, 400);
-            
+            ctx.strokeText(("click anywhere to start over"), 250, 325);
+
             gameover = true;
-            
-            for(var i = 0; i <= 2; i++) {
-                allEnemies[i].speed = 0;    
+
+            for (var i = 0; i <= 2; i++) {
+                allEnemies[i].speed = 0;
             }
-            
-           
-            
             document.addEventListener('click', screenclick);
         }
 
@@ -113,7 +109,6 @@ var Engine = (function(global) {
      */
     function update(dt) {
         updateEntities(dt);
-        // checkCollisions();
     }
 
     /* This is called by the update function and loops through all of the
@@ -145,16 +140,18 @@ var Engine = (function(global) {
          * for that particular row of the game level.
          */
         var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
+                'images/water-block.png', // Top row is water
+                'images/stone-block.png', // Row 1 of 3 of stone
+                'images/stone-block.png', // Row 2 of 3 of stone
+                'images/stone-block.png', // Row 3 of 3 of stone
+                'images/grass-block.png', // Row 1 of 2 of grass
+                'images/grass-block.png' // Row 2 of 2 of grass
             ],
             numRows = 6,
             numCols = 5,
             row, col;
+
+
 
         /* Loop through the number of rows and columns we've defined above
          * and, using the rowImages array, draw the correct image for that
@@ -172,6 +169,10 @@ var Engine = (function(global) {
                 ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
             }
         }
+        
+        // adds target icon on screen
+        var targetImage = 'images/target.png';
+        ctx.drawImage(Resources.get(targetImage), 214, 470);
 
         renderEntities();
     }
@@ -194,23 +195,20 @@ var Engine = (function(global) {
         gemscore.render();
         leveluptext.render();
     }
-    
-    
+
+// this function is for when game is over and user clics anywhere
+// to restart the game
     function screenclick() {
-        
-        
         gameover = false;
         difficulty = 1;
         livesleft = 3;
         gemtaken = false;
+        gem.reset();
         gemScored = 0;
-        
-//        for(var i = 0; i <= 2; i++) {
-//                allEnemies[i].x = 0;    
-//            }
-        ////make new enemies
+        player.reset();
+
         allEnemies = [];
-        
+
         buggy1 = new Enemy(-130, 225);
         buggy2 = new Enemy(-130, 142);
         buggy3 = new Enemy(-130, 60);
@@ -219,14 +217,14 @@ var Engine = (function(global) {
         allEnemies.push(buggy3);
         document.removeEventListener('click', screenclick);
         console.log("screenclicked");
-	}
+    }
 
     /* This function does nothing but it could have been a good place to
      * handle game reset states - maybe a new game menu or a game over screen
      * those sorts of things. It's only called once by the init() method.
      */
     function reset() {
-        
+
     }
 
     /* Go ahead and load all of the images we know we're going to need to
@@ -240,7 +238,9 @@ var Engine = (function(global) {
         'images/enemy-bug.png',
         'images/char-boy.png',
         'images/gem-orange-small.png',
-        'images/Heart-small.png'
+        'images/Heart-small.png',
+        'images/target.png',
+        'images/gem-icon.png'
     ]);
     Resources.onReady(init);
 
